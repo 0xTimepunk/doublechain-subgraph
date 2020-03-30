@@ -23,7 +23,7 @@ module.exports = async function(done){
     const values1 =  qtys.map(x => x*maxPrice1);
     const values2 =  qtys.map(x => x*maxPrice2);
 
-    let promises = usersToJoin.map((user,idx) => interaction.joinListingAsClient(
+    let promises = usersToJoin.map((user,idx) => interaction.joinListingAsBuyer(
         listings[0], 
         qtys[idx],
         {from: user,value: values1[idx]}));
@@ -33,7 +33,7 @@ module.exports = async function(done){
     } catch (error) {
         console.log(error.message);
     }
-    let promises2 = usersToJoin.map((user,idx) => interaction.joinListingAsClient(
+    let promises2 = usersToJoin.map((user,idx) => interaction.joinListingAsBuyer(
         listings[1], 
         qtys[idx],
         {from: user,value: values2[idx]}));

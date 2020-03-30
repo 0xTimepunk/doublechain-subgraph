@@ -19,7 +19,7 @@ contract ListingRoles is WhitelistAdminRole, DBLReputation {
     |             Storage               |
     |__________________________________*/
 
-    Roles.Role private clients;
+    Roles.Role private buyers;
     Roles.Role private suppliers;
     Roles.Role private transporters;
     
@@ -28,12 +28,12 @@ contract ListingRoles is WhitelistAdminRole, DBLReputation {
     |__________________________________*/
 
     modifier onlyFirstTime () {
-        require(!isClient(msg.sender) && !isSupplier(msg.sender) && !isTransporter(msg.sender),"The user is already registered");
+        require(!isBuyer(msg.sender) && !isSupplier(msg.sender) && !isTransporter(msg.sender),"The user is already registered");
         _;
     }
 
-    modifier onlyClient () {
-        require(isClient(msg.sender),"The user is not a client");
+    modifier onlyBuyer () {
+        require(isBuyer(msg.sender),"The user is not a buyer");
         _;
     }
     modifier onlySupplier () {
@@ -47,7 +47,7 @@ contract ListingRoles is WhitelistAdminRole, DBLReputation {
     }
 
     modifier onlyAuthWithdrawees () {
-        require(isClient(msg.sender)||isSupplier(msg.sender),"The user is not authorized to withdraw");
+        require(isBuyer(msg.sender)||isSupplier(msg.sender),"The user is not authorized to withdraw");
         _;
     }
 
@@ -61,11 +61,11 @@ contract ListingRoles is WhitelistAdminRole, DBLReputation {
     |__________________________________*/
 
     /**
-    * @dev Checks if an account is a registered client
+    * @dev Checks if an account is a registered buyer
     * @param _account The address to check
     */
-    function isClient(address _account) public view returns (bool) {
-        return clients.has(_account);
+    function isBuyer(address _account) public view returns (bool) {
+        return buyers.has(_account);
     }
 
     /**
@@ -87,13 +87,13 @@ contract ListingRoles is WhitelistAdminRole, DBLReputation {
     /**
     * @dev Registers a new user into the platform. Users register themselves and can only register
     * @dev to a single role.
-    * @param _userType The role type, 1=client, 2= supplier, 3=transporter
+    * @param _userType The role type, 1=buyer, 2= supplier, 3=transporter
     */
     function addUser(uint256 _userType) public onlyFirstTime {
         // retirar caso em que _userType == 0
         require(_userType < 4, "Invalid user type");
         if (_userType == 1){
-            clients.add(msg.sender);
+            buyers.add(msg.sender);
             emit UserAdded(msg.sender, "buyer");
             
         } else if(_userType == 2){
@@ -111,12 +111,12 @@ contract ListingRoles is WhitelistAdminRole, DBLReputation {
     /**
     * @dev Removes a user from the platform. Only admins can currently remove accounts
     * @param _account The account to remove
-    * @param _userType The role type, 1=client, 2=supplier, 3=transporter
+    * @param _userType The role type, 1=buyer, 2=supplier, 3=transporter
     */
     function removeUser(address _account, uint256 _userType) public onlyWhitelistAdmin{
         require(_userType < 4, "Invalid user type");
         if (_userType == 1){
-            clients.remove(_account);
+            buyers.remove(_account);
             emit UserRemoved(_account);
         } else if(_userType == 2){
             suppliers.remove(_account);

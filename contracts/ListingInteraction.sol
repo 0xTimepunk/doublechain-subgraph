@@ -17,17 +17,15 @@ contract ListingInteraction is ListingRoles {
     |             Events                |
     |__________________________________*/
 
-    event NewClient(address indexed listingAddress, address indexed client, uint256 depositedWei, uint256 quantity);
-    event LeftListing(address indexed listingAddress, address indexed client, uint256 returnedWei);
-    event SupplierJoined(address indexed listingAddress, address indexed supplier, bytes32 encryptedBid);
+    event NewBuyer(address indexed listingAddress, address indexed buyer, uint256 depositedWei, uint256 quantity);
+    event LeftListing(address indexed listingAddress, address indexed buyer, uint256 returnedWei);
+    event SupplierJoined(address indexed listingAddress, address indexed supplier, uint256 depositedWei, bytes32 encryptedBid);
     event LogWithdrawal(address indexed listingAddress, address indexed withdrawalAccount, uint256 returnedWei);
     event LogCanceled(address indexed listingAddress);
-    event AuctionStart(address indexed listingAddress);
-    event AuctionEnd(address indexed listingAddress);
     event NewShipment (address indexed listingAddress, address from, address to, address transporter);
     event ProofAdded (uint256 indexed tokenId, uint256 proofIndex);
-    event NewKeyTInput (address indexed listingAddress, address transporter, address client);
-    event SuccessfulDelivery (address indexed listingAddress, address client);
+    event NewKeyTInput (address indexed listingAddress, address transporter, address buyer);
+    event SuccessfulDelivery (address indexed listingAddress, address buyer);
     event RejectedDelivery (address indexed listingAddress, address mediator);
 
     /***********************************|
@@ -115,24 +113,24 @@ contract ListingInteraction is ListingRoles {
     }
 
     /**
-    * @dev Calls the pushClient function in a given listing. Msg.sender is automatically pushed as client and needs to deposit 100% of the value in escrow
-    * @dev Anyone joining through this function cannot join again as a client or in auction phase as a supplier (with the same address)
+    * @dev Calls the pushBuyer function in a given listing. Msg.sender is automatically pushed as buyer and needs to deposit 100% of the value in escrow
+    * @dev Anyone joining through this function cannot join again as a buyer or in auction phase as a supplier (with the same address)
     * @param _listing The address of the listing
     * @param _quantity The desired quantity to be bought
     */
-    function joinListingAsClient (address _listing, uint256 _quantity) external onlyClient payable{
-        IAuctionListing(_listing).pushClient.value(msg.value)(msg.sender,_quantity);
+    function joinListingAsBuyer (address _listing, uint256 _quantity) external onlyBuyer payable{
+        IAuctionListing(_listing).pushBuyer.value(msg.value)(msg.sender,_quantity);
 
-        emit NewClient (_listing, msg.sender, msg.value, _quantity);
+        emit NewBuyer (_listing, msg.sender, msg.value, _quantity);
     }
 
     /**
-    * @dev Calls the cancelClient function in a given listing
-    * @dev Currently the address can cancel the participation as a client and later join as a supplier
+    * @dev Calls the cancelBuyer function in a given listing
+    * @dev Currently the address can cancel the participation as a buyer and later join as a supplier
     * @param _listing The address of the listing
     */
-    function cancelClientParticipation (address _listing) external onlyClient {
-        uint256 payment = IAuctionListing(_listing).cancelClient(msg.sender);
+    function cancelBuyerParticipation (address _listing) external onlyBuyer {
+        uint256 payment = IAuctionListing(_listing).cancelBuyer(msg.sender);
 
         emit LeftListing (_listing, msg.sender, payment);
     }
@@ -140,7 +138,7 @@ contract ListingInteraction is ListingRoles {
     /**
     * @dev Calls the pushSupplier function in a given listing. 
     * @notice WARNING - Currently allowing 0 bids. This might change in the future. Supplier still pays a variable fee according to the listing value (see below)
-    * @notice Msg.sender is automatically pushed as a supplier. The same address cannot be a client in the listing
+    * @notice Msg.sender is automatically pushed as a supplier. The same address cannot be a buyer in the listing
     * @notice All participating suppliers deposit a fee comprised of a % of the max listing value + a fee to allow for a blind auction
     * @notice The true bid value is sent encrypted. At the end of the auction, each participant must reveal their encrypted bid
     * @notice The winner will be determined during the reveal time
@@ -157,7 +155,7 @@ contract ListingInteraction is ListingRoles {
 
         IAuctionListing(_listing).pushSupplier.value(msg.value)(msg.sender, _encryptedBid, repScore);
 
-        emit SupplierJoined (_listing, msg.sender, _encryptedBid);
+        emit SupplierJoined (_listing, msg.sender, msg.value, _encryptedBid);
     }
 
     /**
@@ -183,7 +181,7 @@ contract ListingInteraction is ListingRoles {
         require (tokensDistributed[_listing] == false, "Tokens have already been distributed");
 
         string memory uri = IAuctionListing(_listing).getListingURI();
-        address[] memory clients = IAuctionListing(_listing).getClients();
+        address[] memory buyers = IAuctionListing(_listing).getBuyers();
 
         // changed mintNonFungible to public - careful. 
         // a better option to consider is to modify the mint function
@@ -193,7 +191,7 @@ contract ListingInteraction is ListingRoles {
 
         typeID = TrackingToken(trackingToken).create(uri, true);
 
-        TrackingToken(trackingToken).mintNonFungible(typeID, clients);
+        TrackingToken(trackingToken).mintNonFungible(typeID, buyers);
 
         tokensDistributed[_listing] = true;
     }
@@ -202,22 +200,22 @@ contract ListingInteraction is ListingRoles {
     * @dev Calls the initiateDelivery function in a given listing and mints a token representing a product
     * @notice Private and public shipment key must be generated off-chain and kept as a secret to all the parties.
     * @param _listing The address of the listing
-    * @param _client The address of the client
+    * @param _buyer The address of the buyer
     * @param _transporter The address of the transporter
     * @param _publicSKey The public shipment key (hashed version of the key that verifies the end of the shipping process)
-    * @param _tokenID The identifier of the client token
+    * @param _tokenID The identifier of the buyer token
     */    
-    function initiateDelivery (address _listing, address _client, address _transporter, bytes32 _publicSKey, uint256 _tokenID) external onlySupplier {
+    function initiateDelivery (address _listing, address _buyer, address _transporter, bytes32 _publicSKey, uint256 _tokenID) external onlySupplier {
         require(isTransporter(_transporter), "The intended transporter must be registered first");
         require(tokensDistributed[_listing] = true, "Tokens have not been distributed");
         require(TrackingToken(trackingToken).isNonFungibleItem(_tokenID) , "The token is not a NFT" );
-        require(TrackingToken(trackingToken).ownerOf(_tokenID) == _client, "The client has not received a token");
+        require(TrackingToken(trackingToken).ownerOf(_tokenID) == _buyer, "The buyer has not received a token");
 
-        IAuctionListing(_listing).initiateDelivery(msg.sender,_client,_transporter,_publicSKey);
+        IAuctionListing(_listing).initiateDelivery(msg.sender,_buyer,_transporter,_publicSKey);
 
         listingProvenance[_tokenID] = ProvenanceStatus(1);
 
-        emit NewShipment (_listing, msg.sender, _client, _transporter);     
+        emit NewShipment (_listing, msg.sender, _buyer, _transporter);     
     }
 
     /**
@@ -258,7 +256,7 @@ contract ListingInteraction is ListingRoles {
     * @param _privateSKey The private key to unlock the shipment
     * @param _tokenID The ID of the token representing the shipment
     */    
-    function keyVerification (address _listing, bytes32 _privateSKey, uint256 _tokenID) external onlyClient onlyShippingMode(_tokenID)  {
+    function keyVerification (address _listing, bytes32 _privateSKey, uint256 _tokenID) external onlyBuyer onlyShippingMode(_tokenID)  {
         (bool verified, uint256 lTPercent,address winner) = IAuctionListing(_listing).keyVerification(msg.sender,_privateSKey);
         
         if (verified){
@@ -288,7 +286,7 @@ contract ListingInteraction is ListingRoles {
     }
 
     /**
-    * @dev Withdraws the funds in escrow if the listing has been canceled or has ended, both for clients and winning supplier
+    * @dev Withdraws the funds in escrow if the listing has been canceled or has ended, both for buyers and winning supplier
     * @param _listing The address of the listing
     */
     function withdrawFunds (address _listing) external onlyAuthWithdrawees{
@@ -298,7 +296,7 @@ contract ListingInteraction is ListingRoles {
     }
 
     /**
-    * @dev Cancels the auction at a specific address. Allows withdrawal for participating clients
+    * @dev Cancels the auction at a specific address. Allows withdrawal for participating buyers
     * @param _listing The address of the listing
     */
     function cancelListing (address _listing) external onlyWhitelistAdmin{

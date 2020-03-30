@@ -18,7 +18,8 @@ contract AuctionListing is Secondary, IAuctionListing {
 
     /***********************************|
     |             Events                |
-    |__________________________________*/   
+    |__________________________________*/
+
     event ListingBuilt(
         address indexed listingAddress, 
         bool groupable, 
@@ -33,10 +34,11 @@ contract AuctionListing is Secondary, IAuctionListing {
         uint32 fPBid,
         string productURI
     ); 
-    event revealMade (address indexed listing, address indexed revealee, uint256 unencryptedBid, uint256 refund);
-    event refundMade (address indexed listing, address indexed refundee, uint256 refund);
-    event winnerUpdated (address indexed listing, address indexed winner);
-    event invalidBid (address indexed listing, address indexed bidder, uint256 unencryptedBid);
+    event RevealMade (address indexed listing, address indexed revealee, uint256 unencryptedBid, uint256 refund);
+    event RefundMade (address indexed listing, address indexed refundee, uint256 refund);
+    event WinnerUpdated (address indexed listing, address indexed winner, uint256 highestBid);
+    event InvalidBid (address indexed listing, address indexed bidder, uint256 unencryptedBid);
+
     /***********************************|
     |             Storage               |
     |__________________________________*/
@@ -62,7 +64,7 @@ contract AuctionListing is Secondary, IAuctionListing {
     }
     
     //decide if adding depositedWei here, or doing the calculation via quantity times max price or leading bid.
-    struct Client {
+    struct Buyer {
         uint256 weiAmount;
         uint256 quantity;
         uint256 index;
@@ -83,12 +85,12 @@ contract AuctionListing is Secondary, IAuctionListing {
     
     ListingData private lData;
 
-    // key : client , value : Client Struct
-    mapping (address => Client) private clientParams;
+    // key : buyer , value : Buyer Struct
+    mapping (address => Buyer) private buyerParams;
     // key : supplier , value : Supplier Struct
     mapping (address => Supplier) private supplierParams;
     
-    address[] private clients;
+    address[] private buyers;
     address[] private suppliers;
 
     /***********************************|
@@ -159,7 +161,7 @@ contract AuctionListing is Secondary, IAuctionListing {
     modifier onlyJoinableListings ()
     {
         require(
-            lData.groupable || (!lData.groupable && clients.length == 0), "This listing is not joinable");
+            lData.groupable || (!lData.groupable && buyers.length == 0), "This listing is not joinable");
         _;
     }
 
@@ -172,9 +174,9 @@ contract AuctionListing is Secondary, IAuctionListing {
         _;
     }
 
-    modifier onlyClient (address _participant)
+    modifier onlyBuyer (address _participant)
     {
-        require (clientParams[_participant].isParticipating, "The candidate is not participating or is a supplier");
+        require (buyerParams[_participant].isParticipating, "The candidate is not participating or is a supplier");
         _;
     }
 
@@ -184,9 +186,9 @@ contract AuctionListing is Secondary, IAuctionListing {
         _;
     }
     
-    modifier onlyNonClient (address _participant)
+    modifier onlyNonBuyer (address _participant)
     {
-        require (!clientParams[_participant].isParticipating, "The address is already a candidate in the listing");
+        require (!buyerParams[_participant].isParticipating, "The address is already a candidate in the listing");
         _;
     }
 
@@ -208,29 +210,29 @@ contract AuctionListing is Secondary, IAuctionListing {
         _;
     }
 
-    modifier onlyCorrectTransporter (address _client, address _transporter)
+    modifier onlyCorrectTransporter (address _buyer, address _transporter)
     {
-        require (clientParams[_client].transporter == _transporter, "The address is not the transporter to the given client");
+        require (buyerParams[_buyer].transporter == _transporter, "The address is not the transporter to the given buyer");
         _;
     }
 
-    modifier onlyClientOrSupplier (address _participant)
+    modifier onlyBuyerOrSupplier (address _participant)
     {
-        require((supplierParams[_participant].isParticipating && !clientParams[_participant].isParticipating) ||
-        (!supplierParams[_participant].isParticipating && clientParams[_participant].isParticipating), "The address is not participating");
+        require((supplierParams[_participant].isParticipating && !buyerParams[_participant].isParticipating) ||
+        (!supplierParams[_participant].isParticipating && buyerParams[_participant].isParticipating), "The address is not participating");
         _;
     }
 
     modifier onlyWithMinParticipation ()
     {
-        require(clients.length-1 > 0, "Requires a minimum of 1 clients in the listing");
+        require(buyers.length-1 > 0, "Requires a minimum of 1 buyers in the listing");
         _;
     }
 
     //To be removed in actual deployment
-    modifier onlyAfterHashT(address _client)
+    modifier onlyAfterHashT(address _buyer)
     {
-        require(block.timestamp>=clientParams[_client].inputKeyTTime, "Key has been input before the transporter has performed his function");
+        require(block.timestamp>=buyerParams[_buyer].inputKeyTTime, "Key has been input before the transporter has performed his function");
         _;
     }
 
@@ -309,11 +311,11 @@ contract AuctionListing is Secondary, IAuctionListing {
     }
 
     /**
-    * @dev Adds a new client to the Listing
-    * @param _participant The address of the client
-    * @param _quantity The client's desired quantity
+    * @dev Adds a new buyer to the Listing
+    * @param _participant The address of the buyer
+    * @param _quantity The buyer's desired quantity
     */
-    function pushClient (
+    function pushBuyer (
         address _participant, 
         uint256 _quantity 
         ) 
@@ -324,56 +326,56 @@ contract AuctionListing is Secondary, IAuctionListing {
         onlyNotCanceled
         onlyJoinableListings
         onlyCorrectPayments(_quantity)
-        onlyNonClient (_participant)
+        onlyNonBuyer (_participant)
         payable
     {
-        clients.push(_participant);
-        Client memory c;
+        buyers.push(_participant);
+        Buyer memory c;
         c.weiAmount = msg.value;
         c.quantity = _quantity;
-        c.index = clients.length-1;
+        c.index = buyers.length-1;
         c.isParticipating = true;
         c.canWithdraw = false;
-        clientParams[_participant] = c;
+        buyerParams[_participant] = c;
 
         (uint256 quantityToFulfil, uint256 totalQuantity) = getQuantities();
         _setQuantities(quantityToFulfil.add(_quantity), totalQuantity.add(_quantity));
     }
 
     /**
-    * @dev Removes participation in a listing for a potential client
-    * @param _client The client whose participation is to be canceled
+    * @dev Removes participation in a listing for a potential buyer
+    * @param _buyer The buyer whose participation is to be canceled
     */
-    function cancelClient (
-        address payable _client) 
+    function cancelBuyer (
+        address payable _buyer) 
         external 
         onlyPrimary
         onlyAfterListingStart
         onlyBeforeAuctionStart
         onlyNotCanceled
-        onlyClient(_client)
+        onlyBuyer(_buyer)
         returns (uint256)
     {
-        uint256 payment = clientParams[_client].weiAmount;
+        uint256 payment = buyerParams[_buyer].weiAmount;
         require(payment > 0 , "There is nothing to withdraw");
 
         (uint256 quantityToFulfil, uint256 totalQuantity) = getQuantities();
-        _setQuantities(quantityToFulfil.sub(clientParams[_client].quantity), totalQuantity.sub(clientParams[_client].quantity));
+        _setQuantities(quantityToFulfil.sub(buyerParams[_buyer].quantity), totalQuantity.sub(buyerParams[_buyer].quantity));
         
-        clientParams[_client].weiAmount = 0; 
-        clientParams[_client].quantity = 0;
-        clientParams[_client].isParticipating = false;
-        _burnBuyer(clientParams[_client].index);
-        _client.transfer(payment);
+        buyerParams[_buyer].weiAmount = 0; 
+        buyerParams[_buyer].quantity = 0;
+        buyerParams[_buyer].isParticipating = false;
+        _burnBuyer(buyerParams[_buyer].index);
+        _buyer.transfer(payment);
         return payment;
     }
 
     function _burnBuyer(uint _index) internal {
-        uint256 len = clients.length;
-        require(_index < len, "Client cannot be burned at an index beyond array length");
-        clients[_index] = clients[len-1];
-        delete clients[len-1];
-        clients.length--;
+        uint256 len = buyers.length;
+        require(_index < len, "Buyer cannot be burned at an index beyond array length");
+        buyers[_index] = buyers[len-1];
+        delete buyers[len-1];
+        buyers.length--;
     }
 
     /**
@@ -430,7 +432,7 @@ contract AuctionListing is Secondary, IAuctionListing {
         if (_unencryptedBid > lData.maxPrice) {
             // invalid bid -> force value return
             _participant.transfer(refund);
-            emit invalidBid (address(this), _participant, _unencryptedBid);
+            emit InvalidBid (address(this), _participant, _unencryptedBid);
             return;
         }
         (, uint256 totalQuantity) = getQuantities();
@@ -444,7 +446,7 @@ contract AuctionListing is Secondary, IAuctionListing {
 
         _participant.transfer(refund);
 
-        emit revealMade (address(this), _participant, _unencryptedBid, refund);
+        emit RevealMade (address(this), _participant, _unencryptedBid, refund);
      
     }
 
@@ -463,72 +465,72 @@ contract AuctionListing is Secondary, IAuctionListing {
         if (lData.winner != address(0)) {
             // Refund the previously highest bidder.
             lData.winner.transfer((lData.highestBid*totalQuantity*uint256(lData.fPBid))/100);
-            emit refundMade(address(this), lData.winner, supplierParams[lData.winner].weiAmount);
+            emit RefundMade(address(this), lData.winner, supplierParams[lData.winner].weiAmount);
         }
-        lData.highestBid = value;
         lData.winner = bidder;
-        emit winnerUpdated(address(this), bidder);
+        lData.highestBid = value;
+        emit WinnerUpdated(address(this), bidder, value);
         return true;
     }
 
     /**
-    * @dev Initiates the delivery for a given client saving the block height and transporter address
+    * @dev Initiates the delivery for a given buyer saving the block height and transporter address
     * @notice *WIP* - NOT FINAL
     * @param _winner The address of the supplier
-    * @param _client The address of the client
+    * @param _buyer The address of the buyer
     * @param _transporter The address of the transporter
     * @param _publicSKey The cryptographic hash of the key given to the transporter
     */    
-    function initiateDelivery (address _winner, address _client, address _transporter, bytes32 _publicSKey) 
+    function initiateDelivery (address _winner, address _buyer, address _transporter, bytes32 _publicSKey) 
         external 
         onlyPrimary
         onlyAfterRevealEnd
         onlyWinner(_winner)
-        onlyClient(_client)
+        onlyBuyer(_buyer)
         onlyActiveListings
     {
-        clientParams[_client].deliveryStartTime = uint64(block.timestamp);
-        clientParams[_client].transporter = _transporter;
-        clientParams[_client].publicSKey = _publicSKey;
+        buyerParams[_buyer].deliveryStartTime = uint64(block.timestamp);
+        buyerParams[_buyer].transporter = _transporter;
+        buyerParams[_buyer].publicSKey = _publicSKey;
     }
 
    /**
-    * @dev Client inputs the received shipment key from the transporter
+    * @dev Buyer inputs the received shipment key from the transporter
     * @notice *WIP* - NOT FINAL
-    * @param _client The address of the client
+    * @param _buyer The address of the buyer
     * @param _privateSKey The shipment key
     */  
-    function keyVerification (address _client, bytes32 _privateSKey) 
+    function keyVerification (address _buyer, bytes32 _privateSKey) 
         external
         onlyPrimary
         onlyAfterRevealEnd
-        onlyClient(_client)
+        onlyBuyer(_buyer)
         onlyActiveListings
         returns (bool, uint256, address)
     {
         bool verified = false;
         
-        if (clientParams[_client].publicSKey == keccak256(abi.encodePacked(_privateSKey)))
+        if (buyerParams[_buyer].publicSKey == keccak256(abi.encodePacked(_privateSKey)))
         {
             verified = true;
 
-            uint256 supplierPayment = clientParams[_client].quantity.mul(lData.highestBid);
+            uint256 supplierPayment = buyerParams[_buyer].quantity.mul(lData.highestBid);
 
-            clientParams[_client].weiAmount = clientParams[_client].weiAmount.sub(supplierPayment);
+            buyerParams[_buyer].weiAmount = buyerParams[_buyer].weiAmount.sub(supplierPayment);
 
             supplierParams[lData.winner].weiAmount = supplierParams[lData.winner].weiAmount.add(supplierPayment);
 
-            clientParams[_client].canWithdraw = true;
+            buyerParams[_buyer].canWithdraw = true;
 
             (uint256 quantityToFulfil, uint256 totalQuantity) = getQuantities();
 
-            _setQuantities(quantityToFulfil.sub(clientParams[_client].quantity), totalQuantity);
+            _setQuantities(quantityToFulfil.sub(buyerParams[_buyer].quantity), totalQuantity);
 
             uint256 nowTime = block.timestamp;
 
-            uint256 leadTime = nowTime.sub(uint256(clientParams[_client].deliveryStartTime));
+            uint256 leadTime = nowTime.sub(uint256(buyerParams[_buyer].deliveryStartTime));
 
-            clientParams[_client].distributionLeadTime = uint64(leadTime);
+            buyerParams[_buyer].distributionLeadTime = uint64(leadTime);
 
             return (
                 verified, 
@@ -546,20 +548,20 @@ contract AuctionListing is Secondary, IAuctionListing {
     /*
     * @dev Transporter can use this function after 60 blocks since input of the keys and the buyer has not entered their keys. Enters in mediation
     * @notice *WIP* - NOT FINAL - DEACTIVATED
-    * @param _client The address of the client
+    * @param _buyer The address of the buyer
     * @param _transporter The address of the transporter
     *
-    function clientExceededBlockLimit (address _client, address _transporter)
+    function buyerExceededBlockLimit (address _buyer, address _transporter)
         external
         onlyPrimary
         onlyFulfilmentPhase
-        onlyClient(_client)
-        onlyCorrectTransporter(_client, _transporter)
+        onlyBuyer(_buyer)
+        onlyCorrectTransporter(_buyer, _transporter)
     {
-        require(block.number > uint256(clientParams[_client].inputKeyTBlock) + 60, "The block limit was not exceeded yet (currently 60 blocks)");
-        require(clientParams[_client].hashT.length > 0, "The transporter's hash is empty");
-        require(!clientParams[_client].canWithdraw, "The client has already called their own function and activated withdrawals");
-        //transfer client's funds to mediator
+        require(block.number > uint256(buyerParams[_buyer].inputKeyTBlock) + 60, "The block limit was not exceeded yet (currently 60 blocks)");
+        require(buyerParams[_buyer].hashT.length > 0, "The transporter's hash is empty");
+        require(!buyerParams[_buyer].canWithdraw, "The buyer has already called their own function and activated withdrawals");
+        //transfer buyer's funds to mediator
     }
 */
 
@@ -571,17 +573,17 @@ contract AuctionListing is Secondary, IAuctionListing {
         external
         onlyPrimary
         onlyRevealEndOrCanceled
-        onlyClientOrSupplier (_beneficiary)
+        onlyBuyerOrSupplier (_beneficiary)
         returns (uint256)
     {
         uint256 withdrawalAmount = 0;
-        bool client = false;
+        bool buyer = false;
         bool supplier = false;
 
-        //If the beneficiary is a client
-        if (clientParams[_beneficiary].isParticipating)
+        //If the beneficiary is a buyer
+        if (buyerParams[_beneficiary].isParticipating)
         {
-            client = true;
+            buyer = true;
         //If the beneficiary is the winner
         }else if (supplierParams[_beneficiary].isParticipating)
         {
@@ -590,18 +592,18 @@ contract AuctionListing is Secondary, IAuctionListing {
         
         if (lData.canceled) 
         {
-                withdrawalAmount = clientParams[_beneficiary].weiAmount;
+                withdrawalAmount = buyerParams[_beneficiary].weiAmount;
         } else 
         {
             if (supplier) 
             {
                 withdrawalAmount = supplierParams[_beneficiary].weiAmount;
             } 
-            // removed clientParams[_beneficiary].canWithdraw before deplyement
+            // removed buyerParams[_beneficiary].canWithdraw before deplyement
             // since this would only get activated in keyVerification which is disabled
-            else if (client )
+            else if (buyer )
             {
-                withdrawalAmount = clientParams[_beneficiary].weiAmount;
+                withdrawalAmount = buyerParams[_beneficiary].weiAmount;
             }
         }
 
@@ -612,12 +614,12 @@ contract AuctionListing is Secondary, IAuctionListing {
         {
             supplierParams[_beneficiary].weiAmount = 0;
             supplierParams[_beneficiary].isParticipating = false;
-        } else if (client)
+        } else if (buyer)
         {
-            clientParams[_beneficiary].weiAmount = 0;
-            clientParams[_beneficiary].isParticipating = false;
+            buyerParams[_beneficiary].weiAmount = 0;
+            buyerParams[_beneficiary].isParticipating = false;
             // disabled for now
-            // clientParams[_beneficiary].canWithdraw = false;
+            // buyerParams[_beneficiary].canWithdraw = false;
         }
 
         // send the funds
@@ -627,7 +629,7 @@ contract AuctionListing is Secondary, IAuctionListing {
     }
    
     /**
-    * @dev Cancels the auction, marking canceled = true, impeding access to the contract main functions and allowing for withdrawal of escrow deposits by all clients
+    * @dev Cancels the auction, marking canceled = true, impeding access to the contract main functions and allowing for withdrawal of escrow deposits by all buyers
     */
     function cancelAuction()
         external
@@ -690,7 +692,7 @@ contract AuctionListing is Secondary, IAuctionListing {
     }
 
     /**
-    * @dev Returns clients array
+    * @dev Returns buyers array
     */
     function getListingData () 
         external 
@@ -731,18 +733,18 @@ contract AuctionListing is Secondary, IAuctionListing {
     }
 
     /**
-    * @dev Returns clients array
+    * @dev Returns buyers array
     */
-    function getClients () 
+    function getBuyers () 
         external 
         view
         returns (address[] memory)
     {
-        return clients;
+        return buyers;
     }
 
 
-    function getClientData (address _client) 
+    function getBuyerData (address _buyer) 
     external
     view
     returns(
@@ -755,13 +757,13 @@ contract AuctionListing is Secondary, IAuctionListing {
         bool
     ) {
         return (
-        clientParams[_client].weiAmount,
-        clientParams[_client].quantity,
-        clientParams[_client].deliveryStartTime,
-        clientParams[_client].inputKeyTTime,
-        clientParams[_client].distributionLeadTime,
-        clientParams[_client].transporter,
-        clientParams[_client].canWithdraw
+        buyerParams[_buyer].weiAmount,
+        buyerParams[_buyer].quantity,
+        buyerParams[_buyer].deliveryStartTime,
+        buyerParams[_buyer].inputKeyTTime,
+        buyerParams[_buyer].distributionLeadTime,
+        buyerParams[_buyer].transporter,
+        buyerParams[_buyer].canWithdraw
         );
     }
 
@@ -814,14 +816,14 @@ contract AuctionListing is Secondary, IAuctionListing {
         );
     }
 
-    function isClientParticipating (address _client)
+    function isBuyerParticipating (address _buyer)
     external
     view
     returns(
         bool
     ) {
         return (
-            clientParams[_client].isParticipating);
+            buyerParams[_buyer].isParticipating);
     }
 
     function isSupplierParticipating (address _supplier)
@@ -841,7 +843,7 @@ contract AuctionListing is Secondary, IAuctionListing {
         bool
     ) {
         return (
-            (lData.groupable || (!lData.groupable && clients.length == 0)) && 
+            (lData.groupable || (!lData.groupable && buyers.length == 0)) && 
             (block.timestamp >= lData.creationTime && block.timestamp < lData.auctionTime)
         );
     }

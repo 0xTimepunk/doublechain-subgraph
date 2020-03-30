@@ -15,6 +15,7 @@ module.exports = async function(done){
     let promises = usersToReveal.map((user,idx) => interaction.revealBid(
         listings[0], 
         unencryptedBids[idx],
+        1,
         {from: user}));
     try {
         await Promise.all(promises);

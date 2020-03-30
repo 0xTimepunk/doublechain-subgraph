@@ -47,10 +47,12 @@ dataSources:
           handler: handleUserAdded
         - event: UserRemoved(indexed address)
           handler: handleUserRemoved
-        - event: NewClient(indexed address,indexed address,uint256,uint256)
-          handler: handleNewClient
+        - event: NewBuyer(indexed address,indexed address,uint256,uint256)
+          handler: handleNewBuyer
         - event: LeftListing(indexed address,indexed address,uint256)
           handler: handleLeftListing
+        - event: SupplierJoined(indexed address,indexed address,uint256,bytes32)
+          handler: handleSupplierJoined
 templates:
   # These data sources templates exist to support the different flags that a token could specify- kind: ethereum/contract
   - kind: ethereum/contract
@@ -71,3 +73,11 @@ templates:
       eventHandlers:
         - event: ListingBuilt(indexed address,bool,address,uint64,uint64,uint64,uint64,uint64,uint64,uint256,uint32,string)
           handler: handleListingBuilt
+        - event: RevealMade(indexed address,indexed address,uint256,uint256)
+          handler: handleRevealMade
+        - event: RefundMade(indexed address,indexed address,uint256)
+          handler: handleRefundMade
+        - event: WinnerUpdated(indexed address,indexed address,uint256)
+          handler: handleWinnerUpdated
+        - event: InvalidBid(indexed address,indexed address,uint256)
+          handler: handleInvalidBid

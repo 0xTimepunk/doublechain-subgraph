@@ -1,10 +1,11 @@
 import {
   UserAdded,
   UserRemoved,
-  NewClient,
+  NewBuyer,
   LeftListing,
+  SupplierJoined
 } from '../../generated/ListingInteraction/ListingInteraction'
-import { Listing, Buyer, User } from '../../generated/schema'
+import { Listing, Buyer, User, Supplier } from '../../generated/schema'
 import { zeroBigInt, oneBigInt, twoBigInt, threeBigInt } from './helpers'
 
 export function handleUserAdded(event: UserAdded): void {
@@ -23,9 +24,9 @@ export function handleUserRemoved(event: UserRemoved): void {
   user.save()
 }
 
-export function handleNewClient(event: NewClient): void {
+export function handleNewBuyer(event: NewBuyer): void {
   let buyer = new Buyer(
-    event.params.client.toHexString() + '-' + event.params.listingAddress.toHexString(),
+    event.params.buyer.toHexString() + '-' + event.params.listingAddress.toHexString(),
   )
 
   buyer.weiAmount = event.params.depositedWei
@@ -33,14 +34,14 @@ export function handleNewClient(event: NewClient): void {
   buyer.canWithdraw = false
   buyer.isParticipating = true
   buyer.listing = event.params.listingAddress.toHexString()
-  buyer.user = event.params.client.toHexString()
+  buyer.user = event.params.buyer.toHexString()
 
   buyer.save()
 }
 
 export function handleLeftListing(event: LeftListing): void {
   let buyer = Buyer.load(
-    event.params.client.toHexString() + '-' + event.params.listingAddress.toHexString(),
+    event.params.buyer.toHexString() + '-' + event.params.listingAddress.toHexString(),
   )
   let listing = Listing.load(event.params.listingAddress.toHexString())
 
@@ -61,4 +62,19 @@ export function handleLeftListing(event: LeftListing): void {
   listing.buyers = buyers
 
   listing.save()
+}
+
+export function handleSupplierJoined(event: SupplierJoined): void {
+  let supplier = new Supplier(
+    event.params.supplier.toHexString() + '-' + event.params.listingAddress.toHexString(),
+  )
+
+  supplier.weiAmount = event.params.depositedWei
+  supplier.isParticipating = true
+  supplier.revealed = false
+  supplier.canWithdraw = false
+  supplier.listing = event.params.listingAddress.toHexString()
+  supplier.user = event.params.supplier.toHexString()
+
+  supplier.save()
 }

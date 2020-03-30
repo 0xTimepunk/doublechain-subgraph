@@ -39,9 +39,8 @@ type Buyer @entity  {
 type Supplier @entity {
   id: ID!
   weiAmount: BigInt!
-  encryptedBid: Bytes!
+  encryptedBid: Bytes
   isParticipating: Boolean!
-  bid: BigInt!
   revealed: Boolean!
   canWithdraw: Boolean!
   listing: Listing!

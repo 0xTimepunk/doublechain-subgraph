@@ -1,6 +1,11 @@
 import { zeroBigInt } from './helpers'
-import { ListingBuilt } from '../../generated/templates/AuctionListing/AuctionListing'
-import { Listing } from '../../generated/schema'
+import { 
+  ListingBuilt,
+  RevealMade,
+  WinnerUpdated,
+  InvalidBid
+} from '../../generated/templates/AuctionListing/AuctionListing'
+import { Listing, Supplier } from '../../generated/schema'
 
 export function handleListingBuilt(event: ListingBuilt): void {
   let listing = Listing.load(event.params.listingAddress.toHexString())
@@ -24,3 +29,24 @@ export function handleListingBuilt(event: ListingBuilt): void {
 
   listing.save()
 }
+
+export function handleRevealMade(event: RevealMade): void {
+  let supplier = Supplier.load(event.params.revealee.toHexString())
+
+  supplier.weiAmount = zeroBigInt()
+  supplier.encryptedBid = null
+  supplier.revealed = true
+
+  supplier.save()
+}
+
+export function handleWinnerUpdated(event: WinnerUpdated): void {
+  let listing = Listing.load(event.params.listing.toHexString())
+
+  listing.winner = event.params.winner
+  listing.highestBid = event.params.highestBid
+
+  listing.save()
+
+}
+

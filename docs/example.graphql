@@ -34,6 +34,19 @@ query getAll {
     }
     suppliers {
       id
+      weiAmount
+      encryptedBid
+      isParticipating
+      revealed
+      canWithdraw
+      listing {
+        id
+      }
+      user {
+        id
+        role
+        active
+      }
     }
     creator
   }
@@ -42,6 +55,29 @@ query getAll {
     role
     active
     buying {
+      id
+      listing {
+        id
+        canceled
+        groupable
+        hasSuppliers
+        winner
+        ltMax
+        creationTime
+        auctionTime
+        endTime
+        revealTime
+        minMerit
+        maxPrice
+        highestBid
+        address
+        uri
+        quantityToFulfil
+        totalQuantity
+        fPBid
+      }
+    }
+    supplying {
       id
       listing {
         id

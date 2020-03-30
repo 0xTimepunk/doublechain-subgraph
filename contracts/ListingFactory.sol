@@ -43,7 +43,7 @@ contract ListingFactory {
     }
 
     modifier onlyAuthListingCreators() {
-        require(ListingInteraction(listingInteractionContract).isClient(msg.sender)||
+        require(ListingInteraction(listingInteractionContract).isBuyer(msg.sender)||
         ListingInteraction(listingInteractionContract).isSupplier(msg.sender), "Not an authorized creator");
         _;
     }
@@ -94,7 +94,7 @@ contract ListingFactory {
     {
         (uint256 fList, uint32 fPBid) = ListingInteraction(listingInteractionContract).getFeeSchedule();
 
-        require(_maxPrice > 10, "The intended max price must be bigger than 10 Wei to allow the percentual fee calculation and for clients to enter (and at least one bid)");
+        require(_maxPrice > 10, "The intended max price must be bigger than 10 Wei to allow the percentual fee calculation and for buyers to enter (and at least one bid)");
         require(msg.value == fList, "The function caller must transfer 1 finney as fee for the creation");
         uint256 timePacked = _creationTime;
         timePacked |= _auctionTime << 64;

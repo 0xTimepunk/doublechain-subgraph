@@ -1,0 +1,36 @@
+{
+  "name": "briing-subgraph",
+  "version": "0.1.0",
+  "scripts": {
+    "ganache": "ganache-cli -h 0.0.0.0 -p 8545 -m 'reason crater utility defy become gorilla wife run market exile paddle heavy' -b 3 --networkId 333",
+    "truffle": "truffle compile --all && truffle migrate --network ganachecli --reset",
+    "build": "graph build",
+    "create": "graph create briing/subgraph  --access-token 4dfbd211170348ae87b1d98a48f0541d  --node https://api.thegraph.com/deploy/",
+    "create-local": "graph create briing/subgraph --access-token 4dfbd211170348ae87b1d98a48f0541d --node http://127.0.0.1:8020",
+    "codegen": "graph codegen",
+    "deploy": "graph deploy briing/subgraph --access-token 4dfbd211170348ae87b1d98a48f0541d  --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-local": "graph deploy briing/subgraph --access-token 4dfbd211170348ae87b1d98a48f0541d --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
+    "remove-subgraph": "graph remove briing/subgraph --access-token 4dfbd211170348ae87b1d98a48f0541d --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
+    "mocklists": "truffle exec mock/CreateListings.js --network ganachecli",
+    "mockbuyers": "truffle exec mock/AddBuyers.js --network ganachecli",
+    "mocksuppliers": "truffle exec mock/SuppliersBid.js --network ganachecli",
+    "mockreveal": "truffle exec mock/RevealBids.js --network ganachecli"
+  },
+  "devDependencies": {
+    "@graphprotocol/graph-ts": "^0.17.0",
+    "openzeppelin-solidity": "^2.2.0",    
+    "@truffle/hdwallet-provider": "^1.0.33"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

@@ -1,0 +1,68 @@
+query getAll {
+  listings {
+    id
+    canceled
+    groupable
+    hasSuppliers
+    winner
+    ltMax
+    creationTime
+    auctionTime
+    endTime
+    revealTime
+    minMerit
+    maxPrice
+    highestBid
+    address
+    uri
+    quantityToFulfil
+    totalQuantity
+    fPBid
+    buyers {
+      id
+      weiAmount
+      quantity
+      canWithdraw
+      listing {
+        id
+      }
+      user {
+        id
+        role
+        active
+      }
+    }
+    suppliers {
+      id
+    }
+    creator
+  }
+  users {
+    id
+    role
+    active
+    buying {
+      id
+      listing {
+        id
+        canceled
+        groupable
+        hasSuppliers
+        winner
+        ltMax
+        creationTime
+        auctionTime
+        endTime
+        revealTime
+        minMerit
+        maxPrice
+        highestBid
+        address
+        uri
+        quantityToFulfil
+        totalQuantity
+        fPBid
+      }
+    }
+  }
+}

@@ -1,0 +1,57 @@
+type Listing @entity {
+  id: ID!
+  canceled: Boolean
+  groupable: Boolean
+  hasSuppliers: Boolean
+  winner: Bytes
+  ltMax: BigInt
+  creationTime: BigInt
+  auctionTime: BigInt
+  endTime: BigInt
+  revealTime: BigInt
+  minMerit: BigInt
+  maxPrice: BigInt
+  highestBid: BigInt
+  address: Bytes
+  uri: String
+  quantityToFulfil: BigInt
+  totalQuantity: BigInt
+  fPBid: Int
+  buyers: [Buyer!]!  @derivedFrom(field: "listing")
+  suppliers: [Supplier!]! @derivedFrom(field: "listing")
+  creator: Bytes!
+}
+
+type Buyer @entity  {
+  id: ID!
+  weiAmount: BigInt!
+  quantity: BigInt!
+  canWithdraw: Boolean!
+  isParticipating: Boolean!
+  deliveryStartTime: BigInt
+  inputKeyTTime: BigInt
+  distributionLeadTime: BigInt
+  transporterAddress: Bytes
+  listing: Listing!
+  user: User!
+}
+
+type Supplier @entity {
+  id: ID!
+  weiAmount: BigInt!
+  encryptedBid: Bytes!
+  isParticipating: Boolean!
+  bid: BigInt!
+  revealed: Boolean!
+  canWithdraw: Boolean!
+  listing: Listing!
+  user: User!
+}
+
+type User @entity{
+  id: ID!
+  role: String!
+  active: Boolean!
+  buying: [Buyer!] @derivedFrom(field: "user")
+  supplying: [Supplier!] @derivedFrom(field: "user")
+}

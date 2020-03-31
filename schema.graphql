@@ -42,6 +42,7 @@ type Supplier @entity {
   encryptedBid: Bytes
   isParticipating: Boolean!
   revealed: Boolean!
+  refunded: Boolean!
   canWithdraw: Boolean!
   listing: Listing!
   user: User!

@@ -66,12 +66,13 @@ export function handleLeftListing(event: LeftListing): void {
 
 export function handleSupplierJoined(event: SupplierJoined): void {
   let supplier = new Supplier(
-    event.params.supplier.toHexString() + '-' + event.params.listingAddress.toHexString(),
+    event.params.supplier.toHexString() + '-' + event.params.listingAddress.toHexString()
   )
 
   supplier.weiAmount = event.params.depositedWei
   supplier.isParticipating = true
   supplier.revealed = false
+  supplier.refunded = false
   supplier.canWithdraw = false
   supplier.listing = event.params.listingAddress.toHexString()
   supplier.user = event.params.supplier.toHexString()

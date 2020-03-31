@@ -38,6 +38,7 @@ query getAll {
       encryptedBid
       isParticipating
       revealed
+      refunded
       canWithdraw
       listing {
         id

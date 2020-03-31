@@ -3,6 +3,7 @@ import {
   ListingBuilt,
   RevealMade,
   WinnerUpdated,
+  RefundMade,
   InvalidBid
 } from '../../generated/templates/AuctionListing/AuctionListing'
 import { Listing, Supplier } from '../../generated/schema'
@@ -31,7 +32,7 @@ export function handleListingBuilt(event: ListingBuilt): void {
 }
 
 export function handleRevealMade(event: RevealMade): void {
-  let supplier = Supplier.load(event.params.revealee.toHexString())
+  let supplier = Supplier.load(event.params.revealee.toHexString()+ '-' + event.params.listing.toHexString())
 
   supplier.weiAmount = zeroBigInt()
   supplier.encryptedBid = null
@@ -48,5 +49,13 @@ export function handleWinnerUpdated(event: WinnerUpdated): void {
 
   listing.save()
 
+}
+
+export function handleRefundMade(event: RefundMade): void {
+  let supplier = Supplier.load(event.params.refundee.toHexString()+ '-' + event.params.listing.toHexString())
+
+  supplier.refunded = true
+
+  supplier.save()
 }
 

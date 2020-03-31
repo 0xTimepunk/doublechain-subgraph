@@ -464,8 +464,11 @@ contract AuctionListing is Secondary, IAuctionListing {
         }
         if (lData.winner != address(0)) {
             // Refund the previously highest bidder.
-            lData.winner.transfer((lData.highestBid*totalQuantity*uint256(lData.fPBid))/100);
-            emit RefundMade(address(this), lData.winner, supplierParams[lData.winner].weiAmount);
+            uint256 amount = supplierParams[lData.winner].weiAmount;
+            supplierParams[lData.winner].weiAmount = 0;   
+            lData.winner.transfer(amount);
+            
+            emit RefundMade(address(this), lData.winner, amount);
         }
         lData.winner = bidder;
         lData.highestBid = value;

@@ -31,9 +31,9 @@ module.exports = async function(done){
     await interaction.addUser (3,{from: accounts[7]});
 
     //dates are in unix seconds (60 second differece between phases to test)
-    const creationTime = Math.floor(Date.now() / 1000) + 20;
-    const auctionTime = Math.floor(Date.now() / 1000) + 40;
-    const endTime = Math.floor(Date.now() / 1000) + 55;
+    const creationTime = Math.floor(Date.now() / 1000) + 25;
+    const auctionTime = Math.floor(Date.now() / 1000) + 60;
+    const endTime = Math.floor(Date.now() / 1000) + 200;
 
     let promises = uris.map( (uri,idx) => factory.newListing(
         uri, 

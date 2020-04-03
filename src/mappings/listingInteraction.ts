@@ -6,7 +6,7 @@ import {
   SupplierJoined
 } from '../../generated/ListingInteraction/ListingInteraction'
 import { Listing, Buyer, User, Supplier } from '../../generated/schema'
-import { zeroBigInt, oneBigInt, twoBigInt, threeBigInt } from './helpers'
+import { zeroBigInt } from './helpers'
 
 export function handleUserAdded(event: UserAdded): void {
   let user = new User(event.params.account.toHexString())
@@ -37,6 +37,13 @@ export function handleNewBuyer(event: NewBuyer): void {
   buyer.user = event.params.buyer.toHexString()
 
   buyer.save()
+
+  let listing = Listing.load(event.params.listingAddress.toHexString())
+
+  listing.quantityToFulfil =  listing.quantityToFulfil.plus(event.params.quantity)
+  listing.totalQuantity = listing.totalQuantity.plus(event.params.quantity)
+
+  listing.save()
 }
 
 export function handleLeftListing(event: LeftListing): void {
@@ -44,6 +51,10 @@ export function handleLeftListing(event: LeftListing): void {
     event.params.buyer.toHexString() + '-' + event.params.listingAddress.toHexString(),
   )
   let listing = Listing.load(event.params.listingAddress.toHexString())
+
+
+  listing.quantityToFulfil =  listing.quantityToFulfil.minus(buyer.quantity)
+  listing.totalQuantity = listing.totalQuantity.minus(buyer.quantity)
 
   buyer.weiAmount = zeroBigInt()
   buyer.quantity = zeroBigInt()

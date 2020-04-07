@@ -39,6 +39,7 @@ dataSources:
         - Buyer
         - Supplier
         - User
+        - Bid
       abis:
         - name: ListingInteraction
           file: ./src/abi/ListingInteraction.json
@@ -67,6 +68,8 @@ templates:
       file: ./src/mappings/auctionListing.ts
       entities:
         - Listing
+        - Supplier
+        - Bid
       abis:
         - name: AuctionListing
           file: ./src/abi/AuctionListing.json

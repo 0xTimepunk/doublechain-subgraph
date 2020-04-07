@@ -6,7 +6,7 @@ import {
   RefundMade,
   InvalidBid
 } from '../../generated/templates/AuctionListing/AuctionListing'
-import { Listing, Supplier } from '../../generated/schema'
+import { Listing, Supplier, Bid } from '../../generated/schema'
 
 export function handleListingBuilt(event: ListingBuilt): void {
   let listing = Listing.load(event.params.listingAddress.toHexString())
@@ -33,12 +33,17 @@ export function handleListingBuilt(event: ListingBuilt): void {
 
 export function handleRevealMade(event: RevealMade): void {
   let supplier = Supplier.load(event.params.revealee.toHexString()+ '-' + event.params.listing.toHexString())
+  let bid = Bid.load(event.params.revealee.toHexString()+ '-' + event.params.listing.toHexString())
 
   supplier.weiAmount = zeroBigInt()
-  supplier.encryptedBid = null
   supplier.revealed = true
+  supplier.refunded = true
+
+  bid.unencryptedBid = event.params.unencryptedBid
 
   supplier.save()
+
+  bid.save()
 }
 
 export function handleWinnerUpdated(event: WinnerUpdated): void {
@@ -52,10 +57,25 @@ export function handleWinnerUpdated(event: WinnerUpdated): void {
 }
 
 export function handleRefundMade(event: RefundMade): void {
-  let supplier = Supplier.load(event.params.refundee.toHexString()+ '-' + event.params.listing.toHexString())
+  let refundee = Supplier.load(event.params.refundee.toHexString()+ '-' + event.params.listing.toHexString())
 
-  supplier.refunded = true
+  refundee.refunded = true
 
-  supplier.save()
+  refundee.save()
 }
 
+export function handleInvalidBid(event: InvalidBid): void {
+  let supplier = Supplier.load(event.params.bidder.toHexString()+ '-' + event.params.listing.toHexString())
+  let bid = Bid.load(event.params.bidder.toHexString()+ '-' + event.params.listing.toHexString())
+
+  supplier.weiAmount = zeroBigInt()
+  supplier.revealed = true
+  supplier.refunded = true
+  supplier.invalidBid = true
+
+  bid.unencryptedBid = event.params.unencryptedBid
+
+  supplier.save()
+  
+  bid.save()
+}

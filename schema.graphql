@@ -39,13 +39,24 @@ type Buyer @entity  {
 type Supplier @entity {
   id: ID!
   weiAmount: BigInt!
-  encryptedBid: Bytes
   isParticipating: Boolean!
   revealed: Boolean!
   refunded: Boolean!
+  invalidBid: Boolean!
   canWithdraw: Boolean!
   listing: Listing!
   user: User!
+  bid: Bid!
+}
+
+type Bid @entity {
+  id: ID!
+  encryptedBid: Bytes!
+  unencryptedBid: BigInt
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+  transactionLogIndex: BigInt!
+  supplier: Supplier! @derivedFrom(field: "bid")
 }
 
 type User @entity{

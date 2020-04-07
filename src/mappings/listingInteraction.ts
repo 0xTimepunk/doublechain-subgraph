@@ -5,7 +5,7 @@ import {
   LeftListing,
   SupplierJoined
 } from '../../generated/ListingInteraction/ListingInteraction'
-import { Listing, Buyer, User, Supplier } from '../../generated/schema'
+import { Listing, Buyer, User, Supplier, Bid } from '../../generated/schema'
 import { zeroBigInt } from './helpers'
 
 export function handleUserAdded(event: UserAdded): void {
@@ -84,9 +84,22 @@ export function handleSupplierJoined(event: SupplierJoined): void {
   supplier.isParticipating = true
   supplier.revealed = false
   supplier.refunded = false
+  supplier.invalidBid = false
   supplier.canWithdraw = false
   supplier.listing = event.params.listingAddress.toHexString()
   supplier.user = event.params.supplier.toHexString()
+  supplier.bid = event.params.supplier.toHexString() + '-' + event.params.listingAddress.toHexString()
 
   supplier.save()
+
+  let bid = new Bid(
+    event.params.supplier.toHexString() + '-' + event.params.listingAddress.toHexString()
+  )
+
+  bid.encryptedBid = event.params.encryptedBid
+  bid.blockNumber = event.block.number
+  bid.transactionHash = event.transaction.hash
+  bid.transactionLogIndex = event.transactionLogIndex
+
+  bid.save()
 }

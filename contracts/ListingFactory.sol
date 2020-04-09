@@ -55,7 +55,7 @@ contract ListingFactory {
     constructor (address payable _interactionContract, address payable _feeCollector) public onlyWhitelistAdmin(_interactionContract) {
         listingInteractionContract = _interactionContract;
         feeCollector = _feeCollector;
-        revealTime = 180;
+        revealTime = 500;
     }
 
     function setListingInteractionContract (address payable _interactionContract) external onlyWhitelistAdmin(_interactionContract) {

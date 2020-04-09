@@ -15,8 +15,8 @@ module.exports = async function(done){
     let listingData1 = await listing1.getListingData();
     let listingData2 = await listing2.getListingData();
 
-    let maxPrice1 = listingData1[11].toNumber();
-    let maxPrice2 = listingData2[11].toNumber();
+    let maxPrice1 = listingData1[9].toNumber();
+    let maxPrice2 = listingData2[9].toNumber();
 
     const usersToJoin = [accounts[1], accounts[2]];
     const qtys = [1,2];

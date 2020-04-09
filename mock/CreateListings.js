@@ -33,7 +33,7 @@ module.exports = async function(done){
     //dates are in unix seconds (60 second differece between phases to test)
     const creationTime = Math.floor(Date.now() / 1000) + 25;
     const auctionTime = Math.floor(Date.now() / 1000) + 80;
-    const endTime = Math.floor(Date.now() / 1000) + 1000;
+    const endTime = Math.floor(Date.now() / 1000) + 300;
 
     let promises = uris.map( (uri,idx) => factory.newListing(
         uri, 

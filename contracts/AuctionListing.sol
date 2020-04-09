@@ -49,7 +49,6 @@ contract AuctionListing is Secondary, IAuctionListing {
     struct ListingData {
         bool canceled;
         bool groupable;
-        bool hasSuppliers;
         address payable winner;
         uint32 fPBid;
         uint64 ltMax;
@@ -278,7 +277,6 @@ contract AuctionListing is Secondary, IAuctionListing {
         ListingData memory ld = ListingData ({
             canceled: false,
             groupable: _groupable,
-            hasSuppliers: false,
             winner: address(0),
             ltMax: _ltMax,
             creationTime: _creationTime,
@@ -402,9 +400,6 @@ contract AuctionListing is Secondary, IAuctionListing {
         suppliers.push(_participant);
         supplierParams[_participant] = Supplier(msg.value, _encryptedBid, true);
         
-        if(!lData.hasSuppliers) {
-            lData.hasSuppliers = true;
-        }
     }
 
     /**
@@ -700,7 +695,6 @@ contract AuctionListing is Secondary, IAuctionListing {
         returns (
         bool,
         bool,
-        bool,
         address,
         uint64,
         uint64,
@@ -715,7 +709,6 @@ contract AuctionListing is Secondary, IAuctionListing {
         return (
         lData.canceled,
         lData.groupable,
-        lData.hasSuppliers,
         lData.winner,
         lData.ltMax,
         lData.creationTime,

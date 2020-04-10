@@ -90,7 +90,8 @@ export function handleSupplierJoined(event: SupplierJoined): void {
   supplier.listing = event.params.listingAddress.toHexString()
   supplier.user = event.params.supplier.toHexString()
   supplier.bid = event.params.supplier.toHexString() + '-' + event.params.listingAddress.toHexString()
-
+  supplier.joinedBlock = event.block.number 
+  
   supplier.save()
 
   let bid = new Bid(

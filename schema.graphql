@@ -49,6 +49,7 @@ type Supplier @entity {
   listing: Listing!
   user: User!
   bid: Bid!
+  joinedBlock: BigInt!
 }
 
 type Bid @entity {

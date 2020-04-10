@@ -54,6 +54,27 @@ dataSources:
           handler: handleLeftListing
         - event: SupplierJoined(indexed address,indexed address,uint256,bytes32)
           handler: handleSupplierJoined
+        - event: DistributionComplete(indexed address,uint256)
+          handler: handleDistributionComplete
+  - kind: ethereum/contract
+    name:  TrackingToken
+    network: mainnet
+    source:
+      address: '0xbD93C42B78158B0d1C4f5c8A249aA4B4DA502B84'
+      abi: TrackingToken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./src/mappings/trackingToken.ts
+      entities:
+        - Token
+      abis:
+        - name: TrackingToken
+          file: ./src/abi/TrackingToken.json
+      eventHandlers:
+        - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleTransferSingle
 templates:
   # These data sources templates exist to support the different flags that a token could specify- kind: ethereum/contract
   - kind: ethereum/contract

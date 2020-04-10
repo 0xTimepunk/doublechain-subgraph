@@ -3,7 +3,8 @@ import {
   UserRemoved,
   NewBuyer,
   LeftListing,
-  SupplierJoined
+  SupplierJoined,
+  DistributionComplete
 } from '../../generated/ListingInteraction/ListingInteraction'
 import { Listing, Buyer, User, Supplier, Bid } from '../../generated/schema'
 import { zeroBigInt } from './helpers'
@@ -102,4 +103,12 @@ export function handleSupplierJoined(event: SupplierJoined): void {
   bid.transactionLogIndex = event.transactionLogIndex
 
   bid.save()
+}
+
+export function handleDistributionComplete(event: DistributionComplete): void {
+  let listing = Listing.load(event.params.listingAddress.toHexString())
+
+  listing.tokenID = event.params.typeID
+
+  listing.save()
 }

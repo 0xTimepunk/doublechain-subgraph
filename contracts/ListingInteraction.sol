@@ -22,6 +22,7 @@ contract ListingInteraction is ListingRoles {
     event SupplierJoined(address indexed listingAddress, address indexed supplier, uint256 depositedWei, bytes32 encryptedBid);
     event LogWithdrawal(address indexed listingAddress, address indexed withdrawalAccount, uint256 returnedWei);
     event LogCanceled(address indexed listingAddress);
+    event DistributionComplete(address indexed listingAddress, uint256 typeID);
     event NewShipment (address indexed listingAddress, address from, address to, address transporter);
     event ProofAdded (uint256 indexed tokenId, uint256 proofIndex);
     event NewKeyTInput (address indexed listingAddress, address transporter, address buyer);
@@ -194,6 +195,8 @@ contract ListingInteraction is ListingRoles {
         TrackingToken(trackingToken).mintNonFungible(typeID, buyers);
 
         tokensDistributed[_listing] = true;
+
+        emit DistributionComplete(_listing, typeID);
     }
 
     /**

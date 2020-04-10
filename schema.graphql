@@ -20,6 +20,7 @@ type Listing @entity {
   buyers: [Buyer!]!  @derivedFrom(field: "listing")
   suppliers: [Supplier!]! @derivedFrom(field: "listing")
   creator: Bytes!
+  tokenID: BigInt
 }
 
 type Buyer @entity  {
@@ -34,6 +35,7 @@ type Buyer @entity  {
   transporterAddress: Bytes
   listing: Listing!
   user: User!
+  token: Token @derivedFrom(field: "buyer")
 }
 
 type Supplier @entity {
@@ -65,4 +67,11 @@ type User @entity{
   active: Boolean!
   buying: [Buyer!] @derivedFrom(field: "user")
   supplying: [Supplier!] @derivedFrom(field: "user")
+}
+
+type Token @entity {
+  id: ID!
+  owner: Bytes!
+  value: BigInt!
+  buyer: Buyer
 }

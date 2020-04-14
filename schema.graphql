@@ -36,6 +36,8 @@ type Buyer @entity  {
   listing: Listing!
   user: User!
   token: Token @derivedFrom(field: "buyer")
+  blockNumber: BigInt!
+  transactionHash: Bytes!
 }
 
 type Supplier @entity {

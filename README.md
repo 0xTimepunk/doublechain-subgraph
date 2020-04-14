@@ -1,4 +1,4 @@
-# P2PChain
+# Briing
 
 
 ## Runing the Subgraph
@@ -23,41 +23,4 @@ ganache-cli, truffle-cli, @graphprotocol/graph-cli, graph-node, docker, docker-c
 4. Generate subgraph typescript files with `yarn codegen`
 5. In a third terminal, on the graph-node folder, run `cd docker && docker-compose up`
 6. Create and deploy the subgraph to graph-node with `yarn create-local && yarn deploy-local` on the first terminal
-7. Run examples queries (see below) against [GraphiQL](http://127.0.0.1:8000/subgraphs/name/j-mars/p2pchain)
-```
-query GetDataExample {
-  buyOffers {
-    id
-    buyer
-    energy
-    maxPricePerUnit
-    mustBeWhole
-    completed
-  }
-  transactions {
-    id
-    buyOfferId
-    sellOferId
-    energy
-    pricePerUnit
-  }
-  users {
-    id
-    address
-    active
-  }
-  sellOffer(id: "0x0") {
-    id
-    seller
-    energy
-    minPricePerUnit
-    mustBeWhole
-    completed
-  }
-  producer(id: "0xa02ca2c7a1e1270842d287abc52ae29de501242b") {
-    id
-    address
-    active
-  }
-}
-```
+7. Run examples queries against [GraphiQL](http://127.0.0.1:8000/subgraphs/name/j-mars/briing)

@@ -2,7 +2,7 @@
   "name": "briing-subgraph",
   "version": "0.1.0",
   "scripts": {
-    "ganache": "ganache-cli -h 0.0.0.0 -p 8545 -m 'reason crater utility defy become gorilla wife run market exile paddle heavy' -b 3",
+    "ganache": "ganache-cli -h 0.0.0.0 -p 8546 -m 'reason crater utility defy become gorilla wife run market exile paddle heavy' -b 3",
     "truffle": "truffle compile --all && truffle migrate --network ganachecli --reset && rm -rf ../briing-dapp/src/abi && cp -r src/abi ../briing-dapp/src/ ",
     "build": "graph build",
     "graph-node": "sudo rm -rf graph-node/docker/data/postgres && docker-compose -f graph-node/docker/docker-compose.yml up",

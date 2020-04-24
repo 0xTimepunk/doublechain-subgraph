@@ -18,7 +18,7 @@
     "mockbuyers": "truffle exec mock/AddBuyers.js --network ganachecli",
     "mocksuppliers": "truffle exec mock/SuppliersBid.js --network ganachecli",
     "mockreveal": "truffle exec mock/RevealBids.js --network ganachecli",
-    "fundTorus": "truffle exec mock/FundTorus.js --network ganachecli"
+    "fundAcc": "truffle exec mock/FundAccs.js --network ganachecli"
   },
   "devDependencies": {
     "@graphprotocol/graph-ts": "^0.17.0",

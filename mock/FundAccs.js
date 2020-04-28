@@ -10,6 +10,8 @@ module.exports = async function(done){
         await web3.eth.sendTransaction({from: accounts[0], to: "0xc6444E7c335d06c9570b243e457032530A1685A0", value: web3.utils.toWei("1","ether")})
         // squarelink
         await web3.eth.sendTransaction({from: accounts[0], to: "0x6d58b1d6e5a8b7a30944747d7495511cfe467c29", value: web3.utils.toWei("1","ether")})
+        // walletConnect
+        await web3.eth.sendTransaction({from: accounts[0], to: "0x0818410b47472be07D8287fF0622a015Cc638442", value: web3.utils.toWei("1","ether")})
 
     } catch (error) {
         console.log(error.message);

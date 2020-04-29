@@ -13,7 +13,14 @@ module.exports = async function(done){
         766575, 
         1400000, 
         967877];
-    const maxPrice = [1000, 800, 500, 100, 50, 40];
+    const maxPrice = [
+        web3.utils.toWei("1", "ether"), 
+        web3.utils.toWei("0.8", "ether"), 
+        web3.utils.toWei("0.2", "ether"), 
+        web3.utils.toWei("0.5", "ether"), 
+        web3.utils.toWei("0.1", "ether"), 
+        web3.utils.toWei("0.55", "ether")
+    ];
     const minMerit = [3, 4, 5, 1, 2, 5];
 
     const creators = [accounts[1],accounts[1],accounts[2],accounts[2], accounts[3], accounts[3]];

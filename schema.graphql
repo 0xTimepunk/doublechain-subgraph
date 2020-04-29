@@ -11,7 +11,7 @@ type Listing @entity {
   revealTime: BigInt
   minMerit: BigInt
   maxPrice: BigInt
-  maxPriceEth: BigInt
+  maxPriceEth: BigDecimal
   highestBid: BigInt
   address: Bytes
   uri: String

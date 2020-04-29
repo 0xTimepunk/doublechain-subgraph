@@ -38,7 +38,6 @@ export function handleNewBuyer(event: NewBuyer): void {
   buyer.user = event.params.buyer.toHexString()
   buyer.blockNumber = event.block.number
   buyer.transactionHash = event.transaction.hash
-  
   buyer.save()
 
   let listing = Listing.load(event.params.listingAddress.toHexString())

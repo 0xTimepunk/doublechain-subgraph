@@ -1,4 +1,4 @@
-import { zeroBigInt } from './helpers'
+import { zeroBigInt, convertWeiToEth} from './helpers'
 import { 
   ListingBuilt,
   RevealMade,
@@ -22,6 +22,7 @@ export function handleListingBuilt(event: ListingBuilt): void {
   listing.revealTime = event.params.revealTime
   listing.minMerit = event.params.minMerit
   listing.maxPrice = event.params.maxPrice
+  listing.maxPriceEth = convertWeiToEth(event.params.maxPrice)
   listing.highestBid = event.params.maxPrice
   listing.address = event.params.listingAddress
   listing.uri = event.params.productURI

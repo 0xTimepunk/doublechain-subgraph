@@ -36,8 +36,8 @@ export function threeBigInt(): BigInt {
   return BigInt.fromI32(3)
 }
 
-export function convertEthToDecimal(eth: BigInt): BigDecimal {
-  return eth.toBigDecimal().div(exponentToBigDecimal(18))
+export function convertWeiToEth(wei: BigInt): BigDecimal {
+  return wei.toBigDecimal().div(exponentToBigDecimal(18))
 }
 
 export function convertTokenToDecimal(tokenAmount: BigInt, exchangeDecimals: i32): BigDecimal {

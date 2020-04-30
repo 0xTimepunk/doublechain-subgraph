@@ -1,4 +1,4 @@
-import { zeroBigInt, convertWeiToEth} from './helpers'
+import { zeroBigInt, convertWeiToEth, zeroBD } from './helpers'
 import { 
   ListingBuilt,
   RevealMade,
@@ -27,6 +27,7 @@ export function handleListingBuilt(event: ListingBuilt): void {
   listing.address = event.params.listingAddress
   listing.uri = event.params.productURI
   listing.quantityToFulfil = zeroBigInt()
+  listing.totalQuantity = zeroBigInt()
   listing.fPBid = event.params.fPBid.toI32()
 
   listing.save()
@@ -37,12 +38,14 @@ export function handleRevealMade(event: RevealMade): void {
   let bid = Bid.load(event.params.revealee.toHexString()+ '-' + event.params.listing.toHexString())
 
   supplier.weiAmount = zeroBigInt()
+  supplier.weiAmountEth = zeroBD()
   supplier.revealed = true
   supplier.refunded = true
 
-  bid.unencryptedBid = event.params.unencryptedBid
-
   supplier.save()
+
+  bid.unencryptedBid = event.params.unencryptedBid
+  bid.unencryptedBidEth = convertWeiToEth(event.params.unencryptedBid)
 
   bid.save()
 }
@@ -52,6 +55,7 @@ export function handleWinnerUpdated(event: WinnerUpdated): void {
 
   listing.winner = event.params.winner
   listing.highestBid = event.params.highestBid
+  listing.highestBidEth = convertWeiToEth(event.params.highestBid)
 
   listing.save()
 
@@ -70,13 +74,15 @@ export function handleInvalidBid(event: InvalidBid): void {
   let bid = Bid.load(event.params.bidder.toHexString()+ '-' + event.params.listing.toHexString())
 
   supplier.weiAmount = zeroBigInt()
+  supplier.weiAmountEth = zeroBD()
   supplier.revealed = true
   supplier.refunded = true
   supplier.invalidBid = true
 
-  bid.unencryptedBid = event.params.unencryptedBid
-
   supplier.save()
   
+  bid.unencryptedBid = event.params.unencryptedBid
+  bid.unencryptedBidEth = convertWeiToEth(event.params.unencryptedBid)
+
   bid.save()
 }

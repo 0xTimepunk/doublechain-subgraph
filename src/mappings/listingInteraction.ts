@@ -7,7 +7,7 @@ import {
   DistributionComplete
 } from '../../generated/ListingInteraction/ListingInteraction'
 import { Listing, Buyer, User, Supplier, Bid } from '../../generated/schema'
-import { zeroBigInt } from './helpers'
+import { zeroBigInt, convertWeiToEth, zeroBD } from './helpers'
 
 export function handleUserAdded(event: UserAdded): void {
   let user = new User(event.params.account.toHexString())
@@ -31,6 +31,7 @@ export function handleNewBuyer(event: NewBuyer): void {
   )
 
   buyer.weiAmount = event.params.depositedWei
+  buyer.weiAmountEth = convertWeiToEth(event.params.depositedWei)
   buyer.quantity = event.params.quantity
   buyer.canWithdraw = false
   buyer.isParticipating = true
@@ -59,6 +60,7 @@ export function handleLeftListing(event: LeftListing): void {
   listing.totalQuantity = listing.totalQuantity.minus(buyer.quantity)
 
   buyer.weiAmount = zeroBigInt()
+  buyer.weiAmountEth = zeroBD()
   buyer.quantity = zeroBigInt()
   buyer.isParticipating = false
 
@@ -83,6 +85,7 @@ export function handleSupplierJoined(event: SupplierJoined): void {
   )
 
   supplier.weiAmount = event.params.depositedWei
+  supplier.weiAmountEth = convertWeiToEth(event.params.depositedWei)
   supplier.isParticipating = true
   supplier.revealed = false
   supplier.refunded = false

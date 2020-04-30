@@ -13,6 +13,7 @@ type Listing @entity {
   maxPrice: BigInt
   maxPriceEth: BigDecimal
   highestBid: BigInt
+  highestBidEth: BigDecimal
   address: Bytes
   uri: String
   quantityToFulfil: BigInt
@@ -27,6 +28,7 @@ type Listing @entity {
 type Buyer @entity  {
   id: ID!
   weiAmount: BigInt!
+  weiAmountEth: BigDecimal!
   quantity: BigInt!
   canWithdraw: Boolean!
   isParticipating: Boolean!
@@ -44,6 +46,7 @@ type Buyer @entity  {
 type Supplier @entity {
   id: ID!
   weiAmount: BigInt!
+  weiAmountEth: BigDecimal!
   isParticipating: Boolean!
   revealed: Boolean!
   refunded: Boolean!
@@ -59,6 +62,7 @@ type Bid @entity {
   id: ID!
   encryptedBid: Bytes!
   unencryptedBid: BigInt
+  unencryptedBidEth: BigDecimal
   blockNumber: BigInt!
   transactionHash: Bytes!
   transactionLogIndex: BigInt!

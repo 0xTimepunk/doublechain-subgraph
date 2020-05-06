@@ -25,6 +25,7 @@ export function handleListingBuilt(event: ListingBuilt): void {
   listing.maxPrice = event.params.maxPrice
   listing.maxPriceEth = convertWeiToEth(event.params.maxPrice)
   listing.highestBid = event.params.maxPrice
+  listing.highestBidEth = convertWeiToEth(event.params.maxPrice)
   listing.address = event.params.listingAddress
   listing.uri = event.params.productURI
   listing.quantityToFulfil = zeroBigInt()

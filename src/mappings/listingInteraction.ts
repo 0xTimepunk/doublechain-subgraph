@@ -39,6 +39,7 @@ export function handleNewBuyer(event: NewBuyer): void {
   buyer.user = event.params.buyer.toHexString()
   buyer.blockNumber = event.block.number
   buyer.transactionHash = event.transaction.hash
+  buyer.withdrawn = false
   buyer.save()
 
   let listing = Listing.load(event.params.listingAddress.toHexString())
@@ -63,6 +64,7 @@ export function handleLeftListing(event: LeftListing): void {
   buyer.weiAmountEth = zeroBD()
   buyer.quantity = zeroBigInt()
   buyer.isParticipating = false
+  buyer.withdrawn = true
 
   buyer.save()
 
@@ -95,6 +97,7 @@ export function handleSupplierJoined(event: SupplierJoined): void {
   supplier.user = event.params.supplier.toHexString()
   supplier.bid = event.params.supplier.toHexString() + '-' + event.params.listingAddress.toHexString()
   supplier.joinedBlock = event.block.number 
+  supplier.withdrawn = false
   
   supplier.save()
 

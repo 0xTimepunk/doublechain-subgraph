@@ -1,12 +1,13 @@
-import { zeroBigInt, convertWeiToEth, zeroBD } from './helpers'
+import { zeroBigInt, convertWeiToEth, zeroBD, equalToZeroBI, equalToOneBI } from './helpers'
 import { 
   ListingBuilt,
   RevealMade,
   WinnerUpdated,
   RefundMade,
-  InvalidBid
+  InvalidBid,
+  FullWithdrawal
 } from '../../generated/templates/AuctionListing/AuctionListing'
-import { Listing, Supplier, Bid } from '../../generated/schema'
+import { Listing, Supplier, Bid, Buyer} from '../../generated/schema'
 
 export function handleListingBuilt(event: ListingBuilt): void {
   let listing = Listing.load(event.params.listingAddress.toHexString())
@@ -86,3 +87,28 @@ export function handleInvalidBid(event: InvalidBid): void {
 
   bid.save()
 }
+
+export function handleFullWithdrawal(event: FullWithdrawal): void {
+  let userType = event.params.userType
+
+  if(equalToOneBI(userType)){
+    let supplier = Supplier.load(event.params.withdrawee.toHexString()+ '-' + event.params.listing.toHexString())
+    supplier.weiAmount = zeroBigInt()
+    supplier.weiAmountEth = zeroBD()
+    supplier.withdrawn = true
+    supplier.isParticipating = false
+
+    supplier.save()
+  } else if (equalToZeroBI(userType)){
+    let buyer = Buyer.load(event.params.withdrawee.toHexString()+ '-' + event.params.listing.toHexString())
+    buyer.weiAmount = zeroBigInt()
+    buyer.weiAmountEth = zeroBD()
+    buyer.withdrawn = true
+    buyer.isParticipating = false
+
+    buyer.save()
+
+  }
+
+}
+

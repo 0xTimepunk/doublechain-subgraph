@@ -38,7 +38,7 @@ contract AuctionListing is Secondary, IAuctionListing {
     event RefundMade (address indexed listing, address indexed refundee, uint256 refund);
     event WinnerUpdated (address indexed listing, address indexed winner, uint256 highestBid);
     event InvalidBid (address indexed listing, address indexed bidder, uint256 unencryptedBid);
-
+    event FullWithdrawal (address indexed listing, address indexed withdrawee, uint256 userType);
     /***********************************|
     |             Storage               |
     |__________________________________*/
@@ -609,17 +609,22 @@ contract AuctionListing is Secondary, IAuctionListing {
         {
             supplierParams[_beneficiary].weiAmount = 0;
             supplierParams[_beneficiary].isParticipating = false;
+
+            emit FullWithdrawal(address(this), _beneficiary, 1);
         } else if (buyer)
         {
             buyerParams[_beneficiary].weiAmount = 0;
             buyerParams[_beneficiary].isParticipating = false;
             // disabled for now
             // buyerParams[_beneficiary].canWithdraw = false;
+            emit FullWithdrawal(address(this), _beneficiary, 0);
         }
 
         // send the funds
         _beneficiary.transfer(withdrawalAmount);
 
+        // emit event
+        
         return withdrawalAmount;
     }
    

@@ -41,6 +41,7 @@ type Buyer @entity  {
   token: Token @derivedFrom(field: "buyer")
   blockNumber: BigInt!
   transactionHash: Bytes!
+  withdrawn: Boolean!
 }
 
 type Supplier @entity {
@@ -56,6 +57,7 @@ type Supplier @entity {
   user: User!
   bid: Bid!
   joinedBlock: BigInt!
+  withdrawn: Boolean!
 }
 
 type Bid @entity {

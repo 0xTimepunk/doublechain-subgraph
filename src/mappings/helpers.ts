@@ -53,6 +53,22 @@ export function equalToZero(value: BigDecimal): boolean {
   return false
 }
 
+export function equalToZeroBI(value: BigInt): boolean {
+  let formattedVal = parseInt(value.toString(),10)
+  if (0 == formattedVal) {
+    return true
+  }
+  return false
+}
+
+export function equalToOneBI(value: BigInt): boolean {
+  let formattedVal = parseInt(value.toString(),10)
+  if (1 == formattedVal) {
+    return true
+  }
+  return false
+}
+
 export function isNullEthValue(value: string): boolean {
   return value == '0x0000000000000000000000000000000000000000000000000000000000000001'
 }

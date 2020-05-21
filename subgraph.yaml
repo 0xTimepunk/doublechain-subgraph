@@ -8,7 +8,7 @@ dataSources:
     name: ListingFactory
     network: mainnet
     source:
-      address: "0x9b1f7F645351AF3631a656421eD2e40f2802E6c0"
+      address: "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550"
       abi: ListingFactory
     mapping:
       kind: ethereum/events
@@ -27,7 +27,7 @@ dataSources:
     name: ListingInteraction
     network: mainnet
     source:
-      address: "0x0290FB167208Af455bB137780163b7B7a9a10C16"
+      address: "0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B"
       abi: ListingInteraction
     mapping:
       kind: ethereum/events
@@ -60,7 +60,7 @@ dataSources:
     name: TrackingToken
     network: mainnet
     source:
-      address: "0x59d3631c86BbE35EF041872d502F218A39FBa150"
+      address: "0xCfEB869F69431e42cdB54A4F4f105C19C080A601"
       abi: TrackingToken
     mapping:
       kind: ethereum/events

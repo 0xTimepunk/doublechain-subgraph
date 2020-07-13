@@ -2,6 +2,11 @@
   "name": "briing-subgraph",
   "version": "0.1.0",
   "scripts": {
+    "trace": "MODE=trace truffle test",
+    "coverage": "yarn clean && MODE=coverage truffle test; istanbul report html && yarn open-coverage",
+    "profile": "yarn clean && MODE=profile truffle test; istanbul report html && yarn open-coverage",
+    "clean": "shx rm -rf coverage",
+    "open-coverage": "open-cli ./coverage/index.html",
     "ganache": "ganache-cli -h 0.0.0.0 -p 8546 -m -d -b 3 -i 333",
     "ganache-proxy": "ganache-http-proxy",
     "truffle": "truffle compile --all && truffle migrate --network ganachecli --reset && rm -rf ../briing-dapp/src/abi && cp -r src/abi ../briing-dapp/src/ ",
@@ -18,12 +23,21 @@
     "mockbuyers": "truffle exec mock/AddBuyers.js --network ganachecli",
     "mocksuppliers": "truffle exec mock/SuppliersBid.js --network ganachecli",
     "mockreveal": "truffle exec mock/RevealBids.js --network ganachecli",
-    "fundAcc": "truffle exec mock/FundAccs.js --network ganachecli"
+    "fundAcc": "truffle exec mock/FundAccs.js --network ganachecli",
+    "test": "truffle test"
   },
   "devDependencies": {
+    "@0x/sol-profiler": "^4.0.9",
+    "@0x/sol-trace": "^3.0.9",
     "@graphprotocol/graph-ts": "^0.17.0",
+    "@truffle/hdwallet-provider": "^1.0.33",
+    "eth-gas-reporter": "^0.2.17",
+    "istanbul": "^0.4.5",
+    "open-cli": "^6.0.1",
     "openzeppelin-solidity": "^2.2.0",
-    "@truffle/hdwallet-provider": "^1.0.33"
+    "shx": "^0.3.2",
+    "truffle": "^5.1.30",
+    "web3-provider-engine": "^15.0.12"
   },
   "browserslist": {
     "production": [

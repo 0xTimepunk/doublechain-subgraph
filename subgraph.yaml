@@ -1,6 +1,6 @@
 specVersion: 0.0.2
 description: MVP of a dApp for buyer order aggregation and supplier reverse auctions.
-repository: https://github.com/j-mars/briing
+repository: https://github.com/j-mars/doublechain-subgraph
 schema:
   file: ./schema.graphql
 dataSources:

@@ -2,7 +2,7 @@
   "schemaPath": "schema.graphql",
   "extensions": {
     "endpoints": {
-      "dev": "http://127.0.0.1:8000/subgraphs/name/briing/subgraph"
+      "dev": "http://127.0.0.1:8000/subgraphs/name/doublechain/subgraph"
     }
   }
 }

@@ -1,4 +1,4 @@
-query getAll {
+{
   listings {
     id
     canceled
@@ -35,7 +35,6 @@ query getAll {
     suppliers {
       id
       weiAmount
-      encryptedBid
       isParticipating
       revealed
       refunded

@@ -25,4 +25,4 @@ ganache-cli, truffle-cli, @graphprotocol/graph-cli, graph-node, docker, docker-c
 4. Generate subgraph typescript files with `yarn codegen`.
 5. In a third terminal, on the graph-node cloned folder, run `cd docker && docker-compose up`.
 6. Create and deploy the subgraph to graph-node with `yarn create-local && yarn deploy-local` on the first terminal
-7. Run examples queries against [GraphiQL](http://127.0.0.1:8000/subgraphs/name/doublechain/subgraph) (There is an example query within docs/example.graphql. Must run some transactions first. You can mock some data with `yarn mocklists && yarn mockbuyers`)
+7. Run examples queries against [GraphiQL](http://127.0.0.1:8000/subgraphs/name/doublechain/subgraph) (There is an example query within docs/example.graphql, you may run it directly in VSCode with the GraphQL extension by Prisma. Must run some transactions first. You can mock some data with `yarn mocklists && yarn mockbuyers`)

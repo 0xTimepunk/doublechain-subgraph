@@ -7,7 +7,7 @@
     "profile": "yarn clean && MODE=profile truffle test; istanbul report html && yarn open-coverage",
     "clean": "shx rm -rf coverage",
     "open-coverage": "open-cli ./coverage/index.html",
-    "ganache": "ganache-cli -h 0.0.0.0 -p 8546 -m -d -b 3 -i 333",
+    "ganache": "ganache-cli -h 0.0.0.0 -p 8545 -m -d -b 3 -i 333",
     "ganache-proxy": "ganache-http-proxy",
     "truffle": "truffle compile --all && truffle migrate --network ganachecli --reset",
     "build": "graph build",
